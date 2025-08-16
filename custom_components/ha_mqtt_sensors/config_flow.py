@@ -11,19 +11,21 @@ from .const import (
 DEVICE_CHOICES = ["door", "window", "leak"]
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_user(self, user_input=None) -> FlowResult:
         if user_input is not None:
             sensor_id = user_input[CONF_SENSOR_ID].strip()
-            await self.async_set_unique_id(sensor_id)
+            prefix = user_input.get(CONF_PREFIX, DEFAULT_PREFIX)
+            combined_id = f"{prefix}_{sensor_id}"
+            await self.async_set_unique_id(combined_id)
             self._abort_if_unique_id_configured()
             return self.async_create_entry(
                 title=user_input.get(CONF_NAME) or f"MQTT Sensor {sensor_id}",
                 data={
                     CONF_SENSOR_ID: sensor_id,
                     CONF_NAME: user_input.get(CONF_NAME) or f"Sensor {sensor_id}",
-                    CONF_PREFIX: user_input.get(CONF_PREFIX, DEFAULT_PREFIX),
+                    CONF_PREFIX: prefix,
                 },
                 options={
                     CONF_DEVICE_TYPE: user_input.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE),
@@ -58,3 +60,22 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             vol.Optional(CONF_AVAIL_MINUTES, default=current.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES)): vol.All(int, vol.Range(min=1, max=1440)),
         })
         return self.async_show_form(step_id="init", data_schema=schema)
+
+
+async def async_migrate_entry(hass, config_entry: config_entries.ConfigEntry) -> bool:
+    """Migrate old config entries to the new unique ID format."""
+    version = config_entry.version
+
+    if version < 2:
+        data = {**config_entry.data}
+        prefix = data.get(CONF_PREFIX, DEFAULT_PREFIX)
+        sensor_id = data[CONF_SENSOR_ID]
+        combined_id = f"{prefix}_{sensor_id}"
+        if CONF_PREFIX not in data:
+            data[CONF_PREFIX] = prefix
+        config_entry.version = 2
+        hass.config_entries.async_update_entry(
+            config_entry, data=data, unique_id=combined_id
+        )
+
+    return True

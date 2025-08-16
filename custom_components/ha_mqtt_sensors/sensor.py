@@ -7,17 +7,16 @@ from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.util import dt as dt_util
 from .const import (
-    DOMAIN, CONF_SENSOR_ID, CONF_NAME,
+    DOMAIN, CONF_NAME,
     TOPIC_TIME, TOPIC_EVENT, TOPIC_CHANNEL, TOPIC_STATE, TOPIC_MIC, TOPIC_ID
 )
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     hub = hass.data[DOMAIN][entry.entry_id]
-    sensor_id = entry.data[CONF_SENSOR_ID]
     base_name = entry.data[CONF_NAME]
 
     dev_info = DeviceInfo(
-        identifiers={(DOMAIN, sensor_id)},
+        identifiers={(DOMAIN, hub.combined_id)},
         name=base_name,
         manufacturer="345MHz Receiver",
         model="Honeywell/345 Contact",
@@ -40,7 +39,7 @@ class _BaseSensor(SensorEntity):
         self._hub = hub
         self._entry = entry
         self._attr_name = name
-        self._attr_unique_id = f"{hub.sensor_id}_{unique_suffix}"
+        self._attr_unique_id = f"{hub.combined_id}_{unique_suffix}"
         self._attr_device_info = dev_info
         self._remove = None
 
