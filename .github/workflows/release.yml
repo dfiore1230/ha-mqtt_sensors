@@ -1,0 +1,59 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: v
+        run: |
+          TAG="${GITHUB_REF##*/}"        # refs/tags/v0.1.2 -> v0.1.2
+          VERSION="${TAG#v}"             # v0.1.2 -> 0.1.2
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate manifest.json exists
+        run: |
+          test -f custom_components/ha_mqtt_sensors/manifest.json || {
+            echo "::error file=custom_components/ha_mqtt_sensors/manifest.json::manifest.json not found"
+            exit 1
+          }
+
+      - name: Ensure manifest version matches tag
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq
+          FILE=custom_components/ha_mqtt_sensors/manifest.json
+          MANIFEST_VERSION=$(jq -r .version "$FILE")
+          echo "Manifest version: $MANIFEST_VERSION"
+          echo "Tag version:      ${{ steps.v.outputs.version }}"
+          if [ "$MANIFEST_VERSION" != "${{ steps.v.outputs.version }}" ]; then
+            echo "::error file=$FILE::manifest version ($MANIFEST_VERSION) does not match tag (${{ steps.v.outputs.version }})"
+            exit 1
+          fi
+
+      - name: Build ZIP artifact
+        run: |
+          NAME="ha-mqtt_sensors_${{ steps.v.outputs.version }}.zip"
+          zip -r "$NAME" custom_components/ README.md LICENSE hacs.json
+          echo "artifact=$NAME" >> "$GITHUB_ENV"
+
+      - name: Create/Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: ha-mqtt_sensors ${{ steps.v.outputs.tag }}
+          body: |
+            Release ${{ steps.v.outputs.tag }}
+            - Automated build from manifest.
+          files: ${{ env.artifact }}
