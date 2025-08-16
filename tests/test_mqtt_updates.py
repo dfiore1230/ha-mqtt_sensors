@@ -262,6 +262,18 @@ def test_contact_entity_state_updates():
     assert entity.is_on is True
 
 
+def test_unique_id_includes_prefix():
+    sensor_id = "abc123"
+    prefix = "testp"
+    hass = HomeAssistant()
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: prefix},
+        options={},
+        entry_id="entry2",
+    )
+    hub = MqttHub(hass, entry)
+    entity = ContactEntity(hub, entry, DeviceInfo(), "Test Door", BinarySensorDeviceClass.DOOR)
+    assert entity._attr_unique_id == f"{prefix}_{sensor_id}_contact"
 def test_hub_uses_prefix_from_options():
     hass = HomeAssistant()
     entry = ConfigEntry(
