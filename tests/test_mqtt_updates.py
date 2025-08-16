@@ -11,9 +11,15 @@ sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 # core module
 core = types.ModuleType("homeassistant.core")
 
+class _Loop:
+    def call_soon_threadsafe(self, func, *args):
+        func(*args)
+
+
 class HomeAssistant:
     def __init__(self):
         self.data = {}
+        self.loop = _Loop()
 
 
 def callback(func):

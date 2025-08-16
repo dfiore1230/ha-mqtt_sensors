@@ -53,8 +53,18 @@ class MqttHub:
             payload = payload.strip()
             self.states[suffix] = payload
             self._last_seen_utc = dt_util.utcnow()
-            async_dispatcher_send(self.hass, self._signal_name(suffix), payload)
-            async_dispatcher_send(self.hass, self._signal_name(SUFFIX_AVAILABILITY), "tick")
+            self.hass.loop.call_soon_threadsafe(
+                async_dispatcher_send,
+                self.hass,
+                self._signal_name(suffix),
+                payload,
+            )
+            self.hass.loop.call_soon_threadsafe(
+                async_dispatcher_send,
+                self.hass,
+                self._signal_name(SUFFIX_AVAILABILITY),
+                "tick",
+            )
 
         self._unsub_mqtt = await mqtt.async_subscribe(self.hass, topic, _cb, qos=0, encoding=None)
         self._unsub_timer = async_track_time_interval(
