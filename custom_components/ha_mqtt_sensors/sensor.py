@@ -74,16 +74,20 @@ class LastSeenSensor(_BaseSensor):
         val = self._hub.states.get(TOPIC_TIME)
         if not val:
             return None
+        dt_parsed = dt_util.parse_datetime(val)
+        if dt_parsed is not None:
+            try:
+                return dt_util.as_utc(dt_parsed)
+            except (ValueError, TypeError):
+                return None
         try:
             dt_local = datetime.strptime(val, "%Y-%m-%d %H:%M:%S")
             tz = dt_util.get_time_zone(self.hass.config.time_zone or "UTC")
-            dt_local = tz.localize(dt_local)
+            if tz is not None:
+                dt_local = tz.localize(dt_local)
             return dt_util.as_utc(dt_local)
-        except Exception:
-            try:
-                return dt_util.as_utc(dt_util.parse_datetime(val))
-            except Exception:
-                return None
+        except (ValueError, AttributeError, TypeError):
+            return None
 
 class IntTopicSensor(_BaseSensor):
     def __init__(self, hub, entry, dev_info, name, topic_suffix: str):
