@@ -16,7 +16,7 @@ jobs:
         run: zip -r ha-mqtt_sensors.zip custom_components/ha_mqtt_sensors
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: hacs-build
           path: ha-mqtt_sensors.zip
