@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime, timedelta
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components import mqtt
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -69,7 +69,9 @@ class MqttHub:
             self._unsub_timer()
             self._unsub_timer = None
 
+    @callback
     def _availability_tick(self, _now) -> None:
+        """Periodic callback to update availability state."""
         async_dispatcher_send(self.hass, self._signal_name(SUFFIX_AVAILABILITY), "tick")
 
     def _signal_name(self, suffix: str) -> str:
