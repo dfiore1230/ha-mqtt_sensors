@@ -8,7 +8,8 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN, CONF_SENSOR_ID, CONF_NAME,
-    TOPIC_TIME, TOPIC_EVENT, TOPIC_CHANNEL, TOPIC_STATE, TOPIC_MIC, TOPIC_ID
+    TOPIC_TIME, TOPIC_EVENT, TOPIC_CHANNEL, TOPIC_HEARTBEAT,
+    TOPIC_STATE, TOPIC_MIC, TOPIC_ID,
 )
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
@@ -25,11 +26,12 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
 
     entities = [
         LastSeenSensor(hub, entry, dev_info, f"{base_name} Last Seen"),
-        IntTopicSensor(hub, entry, dev_info, f"{base_name} Event", "event"),
-        IntTopicSensor(hub, entry, dev_info, f"{base_name} Channel", "channel"),
-        TextTopicSensor(hub, entry, dev_info, f"{base_name} State Text", "state"),
-        TextTopicSensor(hub, entry, dev_info, f"{base_name} MIC", "mic"),
-        TextTopicSensor(hub, entry, dev_info, f"{base_name} ID", "id"),
+        IntTopicSensor(hub, entry, dev_info, f"{base_name} Event", TOPIC_EVENT),
+        IntTopicSensor(hub, entry, dev_info, f"{base_name} Channel", TOPIC_CHANNEL),
+        IntTopicSensor(hub, entry, dev_info, f"{base_name} Heartbeat", TOPIC_HEARTBEAT),
+        TextTopicSensor(hub, entry, dev_info, f"{base_name} State Text", TOPIC_STATE),
+        TextTopicSensor(hub, entry, dev_info, f"{base_name} MIC", TOPIC_MIC),
+        TextTopicSensor(hub, entry, dev_info, f"{base_name} ID", TOPIC_ID),
     ]
     async_add_entities(entities)
 
