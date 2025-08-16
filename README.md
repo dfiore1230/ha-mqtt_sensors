@@ -49,7 +49,7 @@ mosquitto_sub -h <BROKER_IP> -t 'sensors_345/702442/#' -v
 ```
 
 ## Options
-- Change device type and availability window from the integration’s **Options**
+- Change topic prefix, device type, and availability window from the integration’s **Options**
 
 ## Notes
 - Requires the **MQTT** integration configured in Home Assistant
