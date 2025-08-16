@@ -37,6 +37,7 @@ class MqttHub:
         self.entry = entry
         self.sensor_id: str = entry.data[CONF_SENSOR_ID]
         self.prefix: str = entry.options.get(CONF_PREFIX) or entry.data.get(CONF_PREFIX, DEFAULT_PREFIX)
+        self.combined_id: str = f"{self.prefix}_{self.sensor_id}"
         self._base = f"{self.prefix}/{self.sensor_id}"
         self.states: dict[str, str | None] = {}
         self._unsub_mqtt = None
