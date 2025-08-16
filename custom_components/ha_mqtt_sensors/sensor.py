@@ -5,6 +5,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN, CONF_SENSOR_ID, CONF_NAME,
@@ -33,7 +34,7 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     ]
     async_add_entities(entities)
 
-class _BaseSensor(SensorEntity):
+class _BaseSensor(RestoreEntity, SensorEntity):
     _attr_should_poll = False
 
     def __init__(self, hub, entry, dev_info: DeviceInfo, name: str, unique_suffix: str):
@@ -56,6 +57,10 @@ class LastSeenSensor(_BaseSensor):
         super().__init__(hub, entry, dev_info, name, "last_seen")
 
     async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state != "unknown":
+            self._hub.states[TOPIC_TIME] = last.state
         @callback
         def _on(_payload: str):
             self.async_write_ha_state()
@@ -84,6 +89,10 @@ class IntTopicSensor(_BaseSensor):
         self._topic_suffix = topic_suffix
 
     async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state != "unknown":
+            self._hub.states[self._topic_suffix] = last.state
         @callback
         def _on(_payload: str):
             self.async_write_ha_state()
@@ -106,6 +115,10 @@ class TextTopicSensor(_BaseSensor):
         self._topic_suffix = topic_suffix
 
     async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state != "unknown":
+            self._hub.states[self._topic_suffix] = last.state
         @callback
         def _on(_payload: str):
             self.async_write_ha_state()
