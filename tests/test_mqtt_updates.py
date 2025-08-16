@@ -262,6 +262,16 @@ def test_contact_entity_state_updates():
     assert entity.is_on is True
 
 
+def test_hub_uses_prefix_from_options():
+    hass = HomeAssistant()
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: "abc123", CONF_PREFIX: "data_prefix"},
+        options={CONF_PREFIX: "opt_prefix"},
+        entry_id="entry2",
+    )
+    hub = MqttHub(hass, entry)
+    assert hub.base_topic == "opt_prefix/abc123"
+
 def test_contact_entity_restores_state():
     sensor_id = "abc123"
     hass = HomeAssistant()
