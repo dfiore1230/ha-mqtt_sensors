@@ -1,0 +1,30 @@
+{
+  "title": "HA MQTT Sensors",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add MQTT Sensor",
+        "description": "Enter the sensor ID and settings",
+        "data": {
+          "sensor_id": "Sensor ID",
+          "name": "Name",
+          "topic_prefix": "Topic prefix",
+          "device_type": "Device type (door/window/leak)",
+          "availability_minutes": "Availability window (minutes)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HA MQTT Sensors Options",
+        "description": "Adjust device type and availability window",
+        "data": {
+          "device_type": "Device type (door/window/leak)",
+          "availability_minutes": "Availability window (minutes)"
+        }
+      }
+    }
+  }
+}

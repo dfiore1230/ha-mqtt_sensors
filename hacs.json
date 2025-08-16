@@ -1,0 +1,7 @@
+{
+  "name": "HA MQTT Sensors",
+  "render_readme": true,
+  "domains": ["binary_sensor", "sensor"],
+  "country": ["US"],
+  "homeassistant": "2024.6.0"
+}
