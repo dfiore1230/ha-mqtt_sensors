@@ -44,8 +44,7 @@ mqtt.subscriptions = {}
 async def async_wait_for_mqtt_client(hass):
     return True
 
-
-def async_subscribe(hass, topic, callback, qos=0, encoding=None):
+async def async_subscribe(hass, topic, callback, qos=0, encoding=None):
     mqtt.subscriptions[topic] = callback
     def unsub():
         mqtt.subscriptions.pop(topic, None)
