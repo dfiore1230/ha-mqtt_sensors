@@ -28,6 +28,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_PREFIX: prefix,
                 },
                 options={
+                    CONF_PREFIX: user_input.get(CONF_PREFIX, DEFAULT_PREFIX),
                     CONF_DEVICE_TYPE: user_input.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE),
                     CONF_AVAIL_MINUTES: user_input.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES),
                 },
@@ -54,8 +55,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        current = {**self.entry.options}
+        current = {**self.entry.data, **self.entry.options}
         schema = vol.Schema({
+            vol.Optional(CONF_PREFIX, default=current.get(CONF_PREFIX, DEFAULT_PREFIX)): str,
             vol.Optional(CONF_DEVICE_TYPE, default=current.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE)): vol.In(DEVICE_CHOICES),
             vol.Optional(CONF_AVAIL_MINUTES, default=current.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES)): vol.All(int, vol.Range(min=1, max=1440)),
         })

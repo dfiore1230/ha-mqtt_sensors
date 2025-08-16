@@ -5,7 +5,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 ## Features
 - Device type selection per sensor: **door**, **window**, **leak**
 - Binary sensors: Contact, Tamper, Battery Low, Alarm, Connectivity
-- Sensors: Last Seen (timestamp), Event, Channel, State (text), MIC, ID
+- Sensors: Last Seen (timestamp), Event, Channel, Heartbeat, State (text), MIC, ID
 - Availability/Connectivity turns **on** when a message was seen within N minutes (default 5)
 
 ## Install
@@ -41,6 +41,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 - **Tamper**: `tamper` == 1 → **on**
 - **Alarm**: `alarm` == 1 → **on**
 - **Connectivity**: last message within N minutes → **on** (configurable)
+- **Heartbeat**: `heartbeat` integer (e.g., 0 or 1)
 
 ## Mosquitto quick check
 ```bash
@@ -49,7 +50,7 @@ mosquitto_sub -h <BROKER_IP> -t 'sensors_345/702442/#' -v
 ```
 
 ## Options
-- Change device type and availability window from the integration’s **Options**
+- Change topic prefix, device type, and availability window from the integration’s **Options**
 
 ## Notes
 - Requires the **MQTT** integration configured in Home Assistant
