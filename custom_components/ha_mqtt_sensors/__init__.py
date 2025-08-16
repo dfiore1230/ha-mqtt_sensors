@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import timedelta
+from datetime import datetime, timedelta
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components import mqtt
@@ -83,5 +83,5 @@ class MqttHub:
         return self._base
 
     @property
-    def last_seen_utc(self):
+    def last_seen_utc(self) -> datetime | None:
         return self._last_seen_utc
