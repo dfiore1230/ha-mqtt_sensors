@@ -5,19 +5,20 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import dt as dt_util
 from .const import (
-    DOMAIN, CONF_SENSOR_ID, CONF_NAME,
-    TOPIC_TIME, TOPIC_EVENT, TOPIC_CHANNEL, TOPIC_STATE, TOPIC_MIC, TOPIC_ID
+    DOMAIN, CONF_NAME,
+    TOPIC_TIME, TOPIC_EVENT, TOPIC_CHANNEL, TOPIC_HEARTBEAT,
+    TOPIC_STATE, TOPIC_MIC, TOPIC_ID,
 )
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     hub = hass.data[DOMAIN][entry.entry_id]
-    sensor_id = entry.data[CONF_SENSOR_ID]
     base_name = entry.data[CONF_NAME]
 
     dev_info = DeviceInfo(
-        identifiers={(DOMAIN, sensor_id)},
+        identifiers={(DOMAIN, hub.combined_id)},
         name=base_name,
         manufacturer="345MHz Receiver",
         model="Honeywell/345 Contact",
@@ -25,22 +26,23 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
 
     entities = [
         LastSeenSensor(hub, entry, dev_info, f"{base_name} Last Seen"),
-        IntTopicSensor(hub, entry, dev_info, f"{base_name} Event", "event"),
-        IntTopicSensor(hub, entry, dev_info, f"{base_name} Channel", "channel"),
-        TextTopicSensor(hub, entry, dev_info, f"{base_name} State Text", "state"),
-        TextTopicSensor(hub, entry, dev_info, f"{base_name} MIC", "mic"),
-        TextTopicSensor(hub, entry, dev_info, f"{base_name} ID", "id"),
+        IntTopicSensor(hub, entry, dev_info, f"{base_name} Event", TOPIC_EVENT),
+        IntTopicSensor(hub, entry, dev_info, f"{base_name} Channel", TOPIC_CHANNEL),
+        IntTopicSensor(hub, entry, dev_info, f"{base_name} Heartbeat", TOPIC_HEARTBEAT),
+        TextTopicSensor(hub, entry, dev_info, f"{base_name} State Text", TOPIC_STATE),
+        TextTopicSensor(hub, entry, dev_info, f"{base_name} MIC", TOPIC_MIC),
+        TextTopicSensor(hub, entry, dev_info, f"{base_name} ID", TOPIC_ID),
     ]
     async_add_entities(entities)
 
-class _BaseSensor(SensorEntity):
+class _BaseSensor(RestoreEntity, SensorEntity):
     _attr_should_poll = False
 
     def __init__(self, hub, entry, dev_info: DeviceInfo, name: str, unique_suffix: str):
         self._hub = hub
         self._entry = entry
         self._attr_name = name
-        self._attr_unique_id = f"{hub.sensor_id}_{unique_suffix}"
+        self._attr_unique_id = f"{hub.combined_id}_{unique_suffix}"
         self._attr_device_info = dev_info
         self._remove = None
 
@@ -56,6 +58,10 @@ class LastSeenSensor(_BaseSensor):
         super().__init__(hub, entry, dev_info, name, "last_seen")
 
     async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state != "unknown":
+            self._hub.states[TOPIC_TIME] = last.state
         @callback
         def _on(_payload: str):
             self.async_write_ha_state()
@@ -67,16 +73,20 @@ class LastSeenSensor(_BaseSensor):
         val = self._hub.states.get(TOPIC_TIME)
         if not val:
             return None
+        dt_parsed = dt_util.parse_datetime(val)
+        if dt_parsed is not None:
+            try:
+                return dt_util.as_utc(dt_parsed)
+            except (ValueError, TypeError):
+                return None
         try:
             dt_local = datetime.strptime(val, "%Y-%m-%d %H:%M:%S")
             tz = dt_util.get_time_zone(self.hass.config.time_zone or "UTC")
-            dt_local = tz.localize(dt_local)
+            if tz is not None:
+                dt_local = tz.localize(dt_local)
             return dt_util.as_utc(dt_local)
-        except Exception:
-            try:
-                return dt_util.as_utc(dt_util.parse_datetime(val))
-            except Exception:
-                return None
+        except (ValueError, AttributeError, TypeError):
+            return None
 
 class IntTopicSensor(_BaseSensor):
     def __init__(self, hub, entry, dev_info, name, topic_suffix: str):
@@ -84,6 +94,10 @@ class IntTopicSensor(_BaseSensor):
         self._topic_suffix = topic_suffix
 
     async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state != "unknown":
+            self._hub.states[self._topic_suffix] = last.state
         @callback
         def _on(_payload: str):
             self.async_write_ha_state()
@@ -106,6 +120,10 @@ class TextTopicSensor(_BaseSensor):
         self._topic_suffix = topic_suffix
 
     async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state != "unknown":
+            self._hub.states[self._topic_suffix] = last.state
         @callback
         def _on(_payload: str):
             self.async_write_ha_state()
