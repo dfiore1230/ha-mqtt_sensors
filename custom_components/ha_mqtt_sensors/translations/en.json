@@ -9,7 +9,7 @@
           "sensor_id": "Sensor ID",
           "name": "Name",
           "topic_prefix": "Topic prefix",
-          "device_type": "Device type (door/window/leak)",
+          "device_type": "Sensor type (door/window/leak)",
           "availability_minutes": "Availability window (minutes)"
         }
       }
@@ -19,10 +19,10 @@
     "step": {
       "init": {
         "title": "HA MQTT Sensors Options",
-        "description": "Adjust topic prefix, device type, and availability window",
+        "description": "Adjust topic prefix, sensor type, and availability window",
         "data": {
           "topic_prefix": "Topic prefix",
-          "device_type": "Device type (door/window/leak)",
+          "device_type": "Sensor type (door/window/leak)",
           "availability_minutes": "Availability window (minutes)"
         }
       }
