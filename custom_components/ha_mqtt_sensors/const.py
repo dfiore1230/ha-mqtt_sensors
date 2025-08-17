@@ -28,3 +28,7 @@ TOPIC_MIC = "mic"
 
 SIG_UPDATE = "ha_mqtt_sensors_update"
 SUFFIX_AVAILABILITY = "availability"
+
+# Normalized text states for contact sensors
+CONTACT_OPEN_STATES = {"open", "opened", "wet", "leak"}
+CONTACT_CLOSED_STATES = {"close", "closed", "dry"}
