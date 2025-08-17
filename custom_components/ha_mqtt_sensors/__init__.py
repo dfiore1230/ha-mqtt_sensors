@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime, timedelta
+import logging
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components import mqtt
@@ -50,7 +51,14 @@ class MqttHub:
 
         def _cb(msg):
             suffix = msg.topic.split("/")[-1]
-            payload = msg.payload if isinstance(msg.payload, str) else msg.payload.decode("utf-8", "ignore")
+            if not suffix:
+                logging.getLogger(__name__).warning("Received MQTT message with empty suffix on topic %s", msg.topic)
+                return
+            try:
+                payload = msg.payload.decode("utf-8", "ignore") if isinstance(msg.payload, bytes) else str(msg.payload)
+            except Exception:
+                logging.getLogger(__name__).warning("Unable to decode payload on topic %s", msg.topic)
+                return
             payload = payload.strip()
             self.states[suffix] = payload
             self._last_seen_utc = dt_util.utcnow()

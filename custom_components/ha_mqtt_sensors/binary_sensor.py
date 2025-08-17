@@ -11,7 +11,8 @@ from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN, CONF_NAME,
     TOPIC_CONTACT, TOPIC_REED, TOPIC_STATE, TOPIC_TAMPER, TOPIC_BATTOK, TOPIC_ALARM,
-    SUFFIX_AVAILABILITY, CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE, CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES
+    SUFFIX_AVAILABILITY, CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE, CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES,
+    CONTACT_OPEN_STATES, CONTACT_CLOSED_STATES,
 )
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
@@ -87,9 +88,9 @@ class ContactEntity(_BaseBin):
         if reed is not None:
             return str(reed) == "1"
         state_text = (self._hub.states.get(TOPIC_STATE) or "").lower()
-        if state_text in ("open", "opened", "wet", "leak"):
+        if state_text in CONTACT_OPEN_STATES:
             return True
-        if state_text in ("close", "closed", "dry"):
+        if state_text in CONTACT_CLOSED_STATES:
             return False
         return None
 

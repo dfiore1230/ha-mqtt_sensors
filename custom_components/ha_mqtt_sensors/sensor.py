@@ -12,6 +12,7 @@ from .const import (
     TOPIC_TIME, TOPIC_EVENT, TOPIC_CHANNEL, TOPIC_HEARTBEAT,
     TOPIC_STATE, TOPIC_MIC, TOPIC_ID,
 )
+from .util import parse_datetime_utc
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     hub = hass.data[DOMAIN][entry.entry_id]
@@ -71,22 +72,7 @@ class LastSeenSensor(_BaseSensor):
     @property
     def native_value(self):
         val = self._hub.states.get(TOPIC_TIME)
-        if not val:
-            return None
-        dt_parsed = dt_util.parse_datetime(val)
-        if dt_parsed is not None:
-            try:
-                return dt_util.as_utc(dt_parsed)
-            except (ValueError, TypeError):
-                return None
-        try:
-            dt_local = datetime.strptime(val, "%Y-%m-%d %H:%M:%S")
-            tz = dt_util.get_time_zone(self.hass.config.time_zone or "UTC")
-            if tz is not None:
-                dt_local = tz.localize(dt_local)
-            return dt_util.as_utc(dt_local)
-        except (ValueError, AttributeError, TypeError):
-            return None
+        return parse_datetime_utc(self.hass, val)
 
 class IntTopicSensor(_BaseSensor):
     def __init__(self, hub, entry, dev_info, name, topic_suffix: str):
