@@ -21,6 +21,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hub = MqttHub(hass, entry)
     await hub.async_setup()
     hass.data[DOMAIN][entry.entry_id] = hub
+    entry.async_on_unload(entry.add_update_listener(_update_listener))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -30,6 +31,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await hass.data[DOMAIN][entry.entry_id].async_unload()
         hass.data[DOMAIN].pop(entry.entry_id, None)
     return unloaded
+
+
+async def _update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle config entry updates by reloading entry."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 class MqttHub:
     """Subscribe to <prefix>/<id>/+ and cache latest values; track availability."""

@@ -44,8 +44,64 @@ class ConfigEntry:
     options: dict
     entry_id: str = "1"
 
+class ConfigFlow:
+    def __init_subclass__(cls, **kwargs):
+        pass
+
+class OptionsFlow:
+    def async_show_form(self, step_id, data_schema):
+        return {"type": "form", "step_id": step_id, "data_schema": data_schema}
+
+    def async_create_entry(self, title, data):
+        return {"type": "create_entry", "title": title, "data": data}
+
 config_entries.ConfigEntry = ConfigEntry
+config_entries.ConfigFlow = ConfigFlow
+config_entries.OptionsFlow = OptionsFlow
 sys.modules["homeassistant.config_entries"] = config_entries
+
+# voluptuous module (schema validation) stub
+vol = types.ModuleType("voluptuous")
+
+class Schema:
+    def __init__(self, schema):
+        self.schema = schema
+    def __call__(self, data):
+        return data
+
+def Optional(key, default=None, description=None):
+    return key
+
+def Required(key, description=None):
+    return key
+
+def In(values):
+    def _validator(value):
+        return value
+    return _validator
+
+def All(*args, **kwargs):
+    def _validator(value):
+        return value
+    return _validator
+
+def Range(min=None, max=None):
+    def _validator(value):
+        return value
+    return _validator
+
+vol.Schema = Schema
+vol.Optional = Optional
+vol.Required = Required
+vol.In = In
+vol.All = All
+vol.Range = Range
+sys.modules["voluptuous"] = vol
+
+# data_entry_flow module
+data_entry_flow = types.ModuleType("homeassistant.data_entry_flow")
+data_entry_flow.FlowResult = dict
+sys.modules["homeassistant.data_entry_flow"] = data_entry_flow
 
 # helpers.entity module
 entity_helper = types.ModuleType("homeassistant.helpers.entity")
