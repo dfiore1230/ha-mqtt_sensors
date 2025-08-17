@@ -1,9 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from custom_components.ha_mqtt_sensors.sensor import LastSeenSensor
 from custom_components.ha_mqtt_sensors.const import TOPIC_TIME
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.util import dt as dt_util
 
 
 def _make_sensor(hass, hub):
@@ -33,3 +34,12 @@ def test_dst_nonexistent_time_returns_none(hass, stub_hub):
     hub.states[TOPIC_TIME] = "2023-03-12 02:30:00"
     sensor = _make_sensor(hass, hub)
     assert sensor.native_value is None
+
+
+def test_future_timestamp_returns_now(hass, stub_hub):
+    hub = stub_hub
+    future = dt_util.utcnow() + timedelta(hours=1)
+    hub.states[TOPIC_TIME] = future.isoformat()
+    sensor = _make_sensor(hass, hub)
+    value = sensor.native_value
+    assert value <= dt_util.as_utc(dt_util.utcnow())
