@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import datetime
+from datetime import datetime, timedelta
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
@@ -72,7 +72,13 @@ class LastSeenSensor(_BaseSensor):
     @property
     def native_value(self):
         val = self._hub.states.get(TOPIC_TIME)
-        return parse_datetime_utc(self.hass, val)
+        parsed = parse_datetime_utc(self.hass, val)
+        if parsed is None:
+            return None
+        now = dt_util.as_utc(dt_util.utcnow())
+        if parsed - now > timedelta(seconds=1):
+            return now
+        return parsed
 
 class IntTopicSensor(_BaseSensor):
     def __init__(self, hub, entry, dev_info, name, topic_suffix: str):
