@@ -8,7 +8,31 @@ Home Assistant custom integration that creates a device with multiple entities f
 - Sensors: Last Seen (timestamp), Event, Channel, Heartbeat, State (text), MIC, ID
 - Availability/Connectivity turns **on** when a message was seen within N minutes (default 5)
 
-## Install
+## MQTT Setup
+- This integration assumes you have an SDR Radio capturing the Sensor Signals and Relaying them via MQTT
+- I rtl_433 via Docker with the below compose example
+  '''RTL345:
+        restart: unless-stopped
+        container_name: rtl345
+        devices:
+          - '/dev/bus/usb'
+        environment:
+            - PUID=1001
+            - PGID=1001
+            - EXTRA_GID=20
+        command:
+            - '-Fmqtt://127.0.0.1,retain=1,devices=sensors_345[/id]'
+            - '-M utc'
+            - '-f 344975000'
+        image: hertzg/rtl_433
+  '''
+
+## HACS GUI Install
+- Add a custom repository with the url "https://github.com/dfiore1230/ha-mqtt_sensors.git" as type intgration
+- Search for "HA MQTT Sensors"
+- Install
+
+## Manual Install
 - Copy this repo to `config/custom_components/ha_mqtt_sensors`
 - Restart Home Assistant
 
