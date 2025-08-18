@@ -24,5 +24,7 @@ def test_availability_based_on_last_seen(hass, stub_hub):
     stub_hub._last_seen_utc = dt_util.utcnow()
     assert entity.is_on is True
 
-    stub_hub._last_seen_utc = dt_util.utcnow() - timedelta(minutes=10)
+    stub_hub._last_seen_utc = dt_util.utcnow() - timedelta(
+        minutes=DEFAULT_AVAIL_MINUTES * 2
+    )
     assert entity.is_on is False
