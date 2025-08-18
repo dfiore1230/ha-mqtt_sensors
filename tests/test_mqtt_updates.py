@@ -10,7 +10,8 @@ from custom_components.ha_mqtt_sensors.const import (
     CONF_USE_REED,
 )
 from custom_components.ha_mqtt_sensors.binary_sensor import ContactEntity
-from custom_components.ha_mqtt_sensors.sensor import IntTopicSensor
+from custom_components.ha_mqtt_sensors.sensor import IntTopicSensor, LastSeenSensor
+from custom_components.ha_mqtt_sensors.util import parse_datetime_utc
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
@@ -32,7 +33,7 @@ def test_contact_entity_state_updates(hass):
     entity.hass = hass
     asyncio.run(entity.async_added_to_hass())
 
-    assert entity.is_on is None
+    assert entity.is_on is False
 
     topic = f"{DEFAULT_PREFIX}/{sensor_id}/state"
     callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
@@ -60,7 +61,7 @@ def test_contact_entity_event_updates(hass):
     entity.hass = hass
     asyncio.run(entity.async_added_to_hass())
 
-    assert entity.is_on is None
+    assert entity.is_on is False
 
     topic = f"{DEFAULT_PREFIX}/{sensor_id}/event"
     callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
@@ -98,7 +99,7 @@ def test_contact_ignores_topics_by_default(hass):
             self.payload = payload
 
     callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/contact_open", "1"))
-    assert entity.is_on is None
+    assert entity.is_on is False
     callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/event", "128"))
     assert entity.is_on is False
     callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/reed_open", "1"))
@@ -247,3 +248,25 @@ def test_int_sensor_restores_state(hass):
     asyncio.run(entity.async_added_to_hass())
 
     assert entity.native_value == 5
+
+
+def test_last_seen_sensor_restores_state_and_hub(hass):
+    sensor_id = "abc123"
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
+        options={},
+        entry_id="entry1",
+    )
+    hub = MqttHub(hass, entry)
+    asyncio.run(hub.async_setup())
+
+    entity = LastSeenSensor(hub, entry, DeviceInfo(), "Test Last Seen")
+    entity.hass = hass
+    entity.entity_id = "sensor.test_last_seen"
+    ts = "2024-01-02 03:04:05"
+    restore_state.last_states[entity.entity_id] = restore_state.State(ts)
+    asyncio.run(entity.async_added_to_hass())
+
+    parsed = parse_datetime_utc(hass, ts)
+    assert entity.native_value == parsed
+    assert hub.last_seen_utc == parsed

@@ -63,6 +63,9 @@ class LastSeenSensor(_BaseSensor):
         last = await self.async_get_last_state()
         if last and last.state != "unknown":
             self._hub.states[TOPIC_TIME] = last.state
+            parsed = parse_datetime_utc(self.hass, last.state)
+            if parsed is not None:
+                self._hub._last_seen_utc = parsed
         @callback
         def _on(_payload: str):
             self.async_write_ha_state()

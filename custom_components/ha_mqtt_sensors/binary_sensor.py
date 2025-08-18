@@ -75,6 +75,9 @@ class ContactEntity(_BaseBin):
         last = await self.async_get_last_state()
         if last and last.state in ("on", "off"):
             self._hub.states[TOPIC_EVENT] = "160" if last.state == "on" else "128"
+        else:
+            # Default to a closed state so the entity has a sensible initial value
+            self._hub.states.setdefault(TOPIC_EVENT, "128")
         @callback
         def _poke(_payload: str):
             self.async_write_ha_state()
@@ -92,6 +95,11 @@ class ContactEntity(_BaseBin):
             reed = self._hub.states.get(TOPIC_REED)
             if reed is not None:
                 return str(reed) == "1"
+        state_text = (self._hub.states.get(TOPIC_STATE) or "").lower()
+        if state_text in CONTACT_OPEN_STATES:
+            return True
+        if state_text in CONTACT_CLOSED_STATES:
+            return False
         event = self._hub.states.get(TOPIC_EVENT)
         if event is not None:
             try:
@@ -102,11 +110,6 @@ class ContactEntity(_BaseBin):
                 return True
             if code in CONTACT_CLOSED_EVENTS:
                 return False
-        state_text = (self._hub.states.get(TOPIC_STATE) or "").lower()
-        if state_text in CONTACT_OPEN_STATES:
-            return True
-        if state_text in CONTACT_CLOSED_STATES:
-            return False
         return None
 
 class TamperEntity(_BaseBin):
