@@ -12,6 +12,12 @@ DEFAULT_DEVICE_TYPE = "window"
 CONF_AVAIL_MINUTES = "availability_minutes"
 DEFAULT_AVAIL_MINUTES = 5
 
+# Optional triggers for contact sensors
+CONF_USE_CONTACT = "use_contact_open"
+CONF_USE_REED = "use_reed_open"
+DEFAULT_USE_CONTACT = False
+DEFAULT_USE_REED = False
+
 # Subtopics
 TOPIC_TIME = "time"
 TOPIC_ID = "id"

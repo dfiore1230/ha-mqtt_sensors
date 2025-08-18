@@ -6,6 +6,8 @@ from custom_components.ha_mqtt_sensors.const import (
     CONF_NAME,
     CONF_PREFIX,
     DEFAULT_PREFIX,
+    CONF_USE_CONTACT,
+    CONF_USE_REED,
 )
 from custom_components.ha_mqtt_sensors.binary_sensor import ContactEntity
 from custom_components.ha_mqtt_sensors.sensor import IntTopicSensor
@@ -72,6 +74,119 @@ def test_contact_entity_event_updates(hass):
     assert entity.is_on is True
     callback(Msg(topic, "128"))
     assert entity.is_on is False
+
+
+def test_contact_ignores_topics_by_default(hass):
+    sensor_id = "abc123"
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
+        options={},
+        entry_id="entry1",
+    )
+    hub = MqttHub(hass, entry)
+    asyncio.run(hub.async_setup())
+
+    entity = ContactEntity(hub, entry, DeviceInfo(), "Test Window", BinarySensorDeviceClass.WINDOW)
+    entity.hass = hass
+    asyncio.run(entity.async_added_to_hass())
+
+    callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
+
+    class Msg:
+        def __init__(self, topic, payload):
+            self.topic = topic
+            self.payload = payload
+
+    callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/contact_open", "1"))
+    assert entity.is_on is None
+    callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/event", "128"))
+    assert entity.is_on is False
+    callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/reed_open", "1"))
+    assert entity.is_on is False
+
+
+def test_contact_topic_enabled_option(hass):
+    sensor_id = "abc123"
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
+        options={CONF_USE_CONTACT: True},
+        entry_id="entry1",
+    )
+    hub = MqttHub(hass, entry)
+    asyncio.run(hub.async_setup())
+
+    entity = ContactEntity(hub, entry, DeviceInfo(), "Test Window", BinarySensorDeviceClass.WINDOW)
+    entity.hass = hass
+    asyncio.run(entity.async_added_to_hass())
+
+    callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
+
+    class Msg:
+        def __init__(self, topic, payload):
+            self.topic = topic
+            self.payload = payload
+
+    callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/contact_open", "1"))
+    assert entity.is_on is True
+    callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/contact_open", "0"))
+    assert entity.is_on is False
+
+
+def test_reed_topic_enabled_option(hass):
+    sensor_id = "abc123"
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
+        options={CONF_USE_REED: True},
+        entry_id="entry1",
+    )
+    hub = MqttHub(hass, entry)
+    asyncio.run(hub.async_setup())
+
+    entity = ContactEntity(hub, entry, DeviceInfo(), "Test Window", BinarySensorDeviceClass.WINDOW)
+    entity.hass = hass
+    asyncio.run(entity.async_added_to_hass())
+
+    callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
+
+    class Msg:
+        def __init__(self, topic, payload):
+            self.topic = topic
+            self.payload = payload
+
+    callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/reed_open", "1"))
+    assert entity.is_on is True
+    callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/reed_open", "0"))
+    assert entity.is_on is False
+
+
+def test_contact_event_updates_after_restore(hass):
+    sensor_id = "abc123"
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
+        options={},
+        entry_id="entry1",
+    )
+    hub = MqttHub(hass, entry)
+    asyncio.run(hub.async_setup())
+
+    entity = ContactEntity(hub, entry, DeviceInfo(), "Test Window", BinarySensorDeviceClass.WINDOW)
+    entity.hass = hass
+    entity.entity_id = "binary_sensor.test_window"
+    restore_state.last_states[entity.entity_id] = restore_state.State("off")
+    asyncio.run(entity.async_added_to_hass())
+
+    assert entity.is_on is False
+
+    topic = f"{DEFAULT_PREFIX}/{sensor_id}/event"
+    callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
+
+    class Msg:
+        def __init__(self, topic, payload):
+            self.topic = topic
+            self.payload = payload
+
+    callback(Msg(topic, "160"))
+    assert entity.is_on is True
 
 
 def test_unique_id_includes_prefix(hass):
