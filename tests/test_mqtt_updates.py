@@ -74,6 +74,36 @@ def test_contact_entity_event_updates(hass):
     assert entity.is_on is False
 
 
+def test_contact_event_updates_after_restore(hass):
+    sensor_id = "abc123"
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
+        options={},
+        entry_id="entry1",
+    )
+    hub = MqttHub(hass, entry)
+    asyncio.run(hub.async_setup())
+
+    entity = ContactEntity(hub, entry, DeviceInfo(), "Test Window", BinarySensorDeviceClass.WINDOW)
+    entity.hass = hass
+    entity.entity_id = "binary_sensor.test_window"
+    restore_state.last_states[entity.entity_id] = restore_state.State("off")
+    asyncio.run(entity.async_added_to_hass())
+
+    assert entity.is_on is False
+
+    topic = f"{DEFAULT_PREFIX}/{sensor_id}/event"
+    callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
+
+    class Msg:
+        def __init__(self, topic, payload):
+            self.topic = topic
+            self.payload = payload
+
+    callback(Msg(topic, "160"))
+    assert entity.is_on is True
+
+
 def test_unique_id_includes_prefix(hass):
     sensor_id = "abc123"
     prefix = "testp"

@@ -73,7 +73,7 @@ class ContactEntity(_BaseBin):
         await super().async_added_to_hass()
         last = await self.async_get_last_state()
         if last and last.state in ("on", "off"):
-            self._hub.states[TOPIC_CONTACT] = "1" if last.state == "on" else "0"
+            self._hub.states[TOPIC_EVENT] = "160" if last.state == "on" else "128"
         @callback
         def _poke(_payload: str):
             self.async_write_ha_state()
