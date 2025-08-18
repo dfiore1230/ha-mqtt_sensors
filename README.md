@@ -9,7 +9,9 @@ Home Assistant custom integration that creates a device with multiple entities f
 - Availability/Connectivity turns **on** when a message was seen within N minutes (default 5)
 
 ## MQTT Setup
-- This integration assumes you have an SDR Radio capturing the Sensor Signals and Relaying them via MQTT
+- This integration assumes
+  - You have an SDR Radio capturing the Sensor Signals and Relaying them via MQTT
+  - You have configured the MQTT Integration in Home Assistant 
 - I rtl_433 via Docker with the below compose example, more details on RTL_433 and this Docker Container can be found here: https://github.com/hertzg/rtl_433_docker
   ```
   RTL345:
@@ -62,7 +64,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 ```
 
 ## Entity mapping
-- **Contact**: `contact_open` → 1=open, else `reed_open` → 1=open, else `event` 160=open / 128=closed, else `state` text `open/closed/wet/dry`
+- **Contact**: `event` 160=open / 128=closed, else `contact_open` → 1=open, else `reed_open` → 1=open, else `state` text `open/closed/wet/dry`
 - **Battery Low**: `battery_ok` == 0 → **on**
 - **Tamper**: `tamper` == 1 → **on**
 - **Alarm**: `alarm` == 1 → **on**
@@ -76,8 +78,4 @@ mosquitto_sub -h <BROKER_IP> -t 'sensors_345/702442/#' -v
 ```
 
 ## Options
-- Change topic prefix, device type, and availability window from the integration’s **Options**
-
-## Notes
-- Requires the **MQTT** integration configured in Home Assistant
-- Add more topics (RSSI, supervision, etc.) by extending `const.py` and the platform files
+- Change topic prefix, device type, availability window and default contact open driver from the integration’s **Options**
