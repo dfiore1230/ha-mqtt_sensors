@@ -30,7 +30,7 @@ Home Assistant custom integration that creates a device with multiple entities f
   
 
 ## HACS GUI Install
-- Add a custom repository with the url "https://github.com/dfiore1230/ha-mqtt_sensors.git" as type intgration
+- Add a custom repository with the url https://github.com/dfiore1230/ha-mqtt_sensors.git as type intgration
 - Search for "HA MQTT Sensors"
 - Install
 
