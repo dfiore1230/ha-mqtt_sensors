@@ -36,7 +36,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 ```
 
 ## Entity mapping
-- **Contact**: `contact_open` → 1=open, else fallback `reed_open` → 1=open, else `state` text `open/closed/wet/dry`
+- **Contact**: `contact_open` → 1=open, else `reed_open` → 1=open, else `event` 160=open / 128=closed, else `state` text `open/closed/wet/dry`
 - **Battery Low**: `battery_ok` == 0 → **on**
 - **Tamper**: `tamper` == 1 → **on**
 - **Alarm**: `alarm` == 1 → **on**

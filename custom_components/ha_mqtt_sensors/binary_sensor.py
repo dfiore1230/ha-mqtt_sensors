@@ -11,8 +11,10 @@ from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN, CONF_NAME,
     TOPIC_CONTACT, TOPIC_REED, TOPIC_STATE, TOPIC_TAMPER, TOPIC_BATTOK, TOPIC_ALARM,
+    TOPIC_EVENT,
     SUFFIX_AVAILABILITY, CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE, CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES,
     CONTACT_OPEN_STATES, CONTACT_CLOSED_STATES,
+    CONTACT_OPEN_EVENTS, CONTACT_CLOSED_EVENTS,
 )
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
@@ -75,7 +77,7 @@ class ContactEntity(_BaseBin):
         @callback
         def _poke(_payload: str):
             self.async_write_ha_state()
-        for suffix in (TOPIC_CONTACT, TOPIC_REED, TOPIC_STATE):
+        for suffix in (TOPIC_CONTACT, TOPIC_REED, TOPIC_STATE, TOPIC_EVENT):
             self._removers.append(async_dispatcher_connect(self.hass, self._hub.signal_for(suffix), _poke))
         self.async_write_ha_state()
 
@@ -87,6 +89,16 @@ class ContactEntity(_BaseBin):
         reed = self._hub.states.get(TOPIC_REED)
         if reed is not None:
             return str(reed) == "1"
+        event = self._hub.states.get(TOPIC_EVENT)
+        if event is not None:
+            try:
+                code = int(event)
+            except ValueError:
+                code = None
+            if code in CONTACT_OPEN_EVENTS:
+                return True
+            if code in CONTACT_CLOSED_EVENTS:
+                return False
         state_text = (self._hub.states.get(TOPIC_STATE) or "").lower()
         if state_text in CONTACT_OPEN_STATES:
             return True
