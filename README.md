@@ -11,7 +11,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 ## MQTT Setup
 - This integration assumes you have an SDR Radio capturing the Sensor Signals and Relaying them via MQTT
 - I rtl_433 via Docker with the below compose example
-  '''RTL345:
+  ```RTL345:
         restart: unless-stopped
         container_name: rtl345
         devices:
@@ -24,8 +24,8 @@ Home Assistant custom integration that creates a device with multiple entities f
             - '-Fmqtt://127.0.0.1,retain=1,devices=sensors_345[/id]'
             - '-M utc'
             - '-f 344975000'
-        image: hertzg/rtl_433
-  '''
+        image: hertzg/rtl_433```
+  
 
 ## HACS GUI Install
 - Add a custom repository with the url "https://github.com/dfiore1230/ha-mqtt_sensors.git" as type intgration
