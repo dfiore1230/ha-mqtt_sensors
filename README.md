@@ -6,7 +6,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 - Device type selection per sensor: **door**, **window**, **leak**
 - Binary sensors: Contact, Tamper, Battery Low, Alarm, Connectivity
 - Sensors: Last Seen (timestamp), Event, Channel, Heartbeat, State (text), MIC, ID
-- Availability/Connectivity turns **on** when a message was seen within N minutes (default 5)
+- Availability/Connectivity turns **on** when a message was seen within N minutes (default 30)
 
 ## MQTT Setup
 - This integration assumes
