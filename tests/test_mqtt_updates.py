@@ -158,7 +158,6 @@ def test_reed_topic_enabled_option(hass):
     callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/reed_open", "0"))
     assert entity.is_on is False
 
-
 def test_contact_event_updates_after_restore(hass):
     sensor_id = "abc123"
     entry = ConfigEntry(
