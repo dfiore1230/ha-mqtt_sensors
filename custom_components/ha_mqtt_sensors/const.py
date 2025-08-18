@@ -32,3 +32,7 @@ SUFFIX_AVAILABILITY = "availability"
 # Normalized text states for contact sensors
 CONTACT_OPEN_STATES = {"open", "opened", "wet", "leak"}
 CONTACT_CLOSED_STATES = {"close", "closed", "dry"}
+
+# Event codes for contact sensors
+CONTACT_OPEN_EVENTS = {160}
+CONTACT_CLOSED_EVENTS = {128}
