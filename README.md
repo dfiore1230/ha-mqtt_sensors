@@ -10,7 +10,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 
 ## MQTT Setup
 - This integration assumes you have an SDR Radio capturing the Sensor Signals and Relaying them via MQTT
-- I rtl_433 via Docker with the below compose example
+- I rtl_433 via Docker with the below compose example, more details on RTL_433 and this Docker Container can be found here: https://github.com/hertzg/rtl_433_docker
   ```
   RTL345:
         restart: unless-stopped
