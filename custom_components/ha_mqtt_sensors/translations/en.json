@@ -10,7 +10,9 @@
           "name": "Name",
           "topic_prefix": "Topic prefix",
           "device_type": "Sensor type (door/window/leak)",
-          "availability_minutes": "Availability window (minutes)"
+          "availability_minutes": "Availability window (minutes)",
+          "use_contact_open": "Use contact_open topic",
+          "use_reed_open": "Use reed_open topic"
         }
       }
     }
@@ -23,7 +25,9 @@
         "data": {
           "topic_prefix": "Topic prefix",
           "device_type": "Sensor type (door/window/leak)",
-          "availability_minutes": "Availability window (minutes)"
+          "availability_minutes": "Availability window (minutes)",
+          "use_contact_open": "Use contact_open topic",
+          "use_reed_open": "Use reed_open topic"
         }
       }
     }

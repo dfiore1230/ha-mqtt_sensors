@@ -15,6 +15,7 @@ from .const import (
     SUFFIX_AVAILABILITY, CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE, CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES,
     CONTACT_OPEN_STATES, CONTACT_CLOSED_STATES,
     CONTACT_OPEN_EVENTS, CONTACT_CLOSED_EVENTS,
+    CONF_USE_CONTACT, CONF_USE_REED, DEFAULT_USE_CONTACT, DEFAULT_USE_REED,
 )
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
@@ -83,12 +84,14 @@ class ContactEntity(_BaseBin):
 
     @property
     def is_on(self):
-        contact = self._hub.states.get(TOPIC_CONTACT)
-        if contact is not None:
-            return str(contact) == "1"
-        reed = self._hub.states.get(TOPIC_REED)
-        if reed is not None:
-            return str(reed) == "1"
+        if self._entry.options.get(CONF_USE_CONTACT, DEFAULT_USE_CONTACT):
+            contact = self._hub.states.get(TOPIC_CONTACT)
+            if contact is not None:
+                return str(contact) == "1"
+        if self._entry.options.get(CONF_USE_REED, DEFAULT_USE_REED):
+            reed = self._hub.states.get(TOPIC_REED)
+            if reed is not None:
+                return str(reed) == "1"
         event = self._hub.states.get(TOPIC_EVENT)
         if event is not None:
             try:
