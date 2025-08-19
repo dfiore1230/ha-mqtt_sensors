@@ -9,13 +9,27 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import dt as dt_util
 
 from .const import (
-    DOMAIN, CONF_NAME,
-    TOPIC_CONTACT, TOPIC_REED, TOPIC_STATE, TOPIC_TAMPER, TOPIC_BATTOK, TOPIC_ALARM,
+    DOMAIN,
+    CONF_NAME,
+    TOPIC_CONTACT,
+    TOPIC_REED,
+    TOPIC_STATE,
+    TOPIC_TAMPER,
+    TOPIC_BATTOK,
+    TOPIC_ALARM,
     TOPIC_EVENT,
-    SUFFIX_AVAILABILITY, CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE, CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES,
-    CONTACT_OPEN_STATES, CONTACT_CLOSED_STATES,
-    CONTACT_OPEN_EVENTS, CONTACT_CLOSED_EVENTS,
-    CONF_USE_EXTERNAL, CONF_USE_INTERNAL, DEFAULT_USE_EXTERNAL, DEFAULT_USE_INTERNAL,
+    SUFFIX_AVAILABILITY,
+    CONF_DEVICE_TYPE,
+    DEFAULT_DEVICE_TYPE,
+    CONF_AVAIL_MINUTES,
+    DEFAULT_AVAIL_MINUTES,
+    CONTACT_OPEN_STATES,
+    CONTACT_CLOSED_STATES,
+    CONTACT_OPEN_EVENTS,
+    CONTACT_CLOSED_EVENTS,
+    CONF_SENSOR_SOURCE,
+    SENSOR_SOURCE_EXTERNAL,
+    SENSOR_SOURCE_INTERNAL,
 )
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
@@ -93,11 +107,12 @@ class ContactEntity(_BaseBin):
 
     @property
     def is_on(self):
-        if self._entry.options.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL):
+        source = self._entry.options.get(CONF_SENSOR_SOURCE)
+        if source == SENSOR_SOURCE_EXTERNAL:
             contact = self._hub.states.get(TOPIC_CONTACT)
             if contact is not None:
                 return str(contact) == "1"
-        if self._entry.options.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL):
+        if source == SENSOR_SOURCE_INTERNAL:
             reed = self._hub.states.get(TOPIC_REED)
             if reed is not None:
                 return str(reed) == "1"

@@ -4,15 +4,29 @@ from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
-    DOMAIN, CONF_SENSOR_ID, CONF_NAME, CONF_PREFIX, DEFAULT_PREFIX,
-    CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE, CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES,
-    CONF_USE_EXTERNAL, CONF_USE_INTERNAL, DEFAULT_USE_EXTERNAL, DEFAULT_USE_INTERNAL,
+    DOMAIN,
+    CONF_SENSOR_ID,
+    CONF_NAME,
+    CONF_PREFIX,
+    DEFAULT_PREFIX,
+    CONF_DEVICE_TYPE,
+    DEFAULT_DEVICE_TYPE,
+    CONF_AVAIL_MINUTES,
+    DEFAULT_AVAIL_MINUTES,
+    CONF_SENSOR_SOURCE,
+    DEFAULT_SENSOR_SOURCE,
+    SENSOR_SOURCE_EXTERNAL,
+    SENSOR_SOURCE_INTERNAL,
+    CONF_USE_EXTERNAL,
+    CONF_USE_INTERNAL,
+    DEFAULT_USE_EXTERNAL,
+    DEFAULT_USE_INTERNAL,
 )
 
 DEVICE_CHOICES = ["door", "window", "leak"]
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    VERSION = 2
+    VERSION = 3
 
     async def async_step_user(self, user_input=None) -> FlowResult:
         schema = vol.Schema({
@@ -20,17 +34,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_NAME): str,
             vol.Optional(CONF_PREFIX, default=DEFAULT_PREFIX): str,
             vol.Optional(CONF_DEVICE_TYPE, default=DEFAULT_DEVICE_TYPE): vol.In(DEVICE_CHOICES),
-            vol.Optional(CONF_AVAIL_MINUTES, default=DEFAULT_AVAIL_MINUTES): vol.All(int, vol.Range(min=1, max=1440)),
-            vol.Optional(CONF_USE_EXTERNAL, default=DEFAULT_USE_EXTERNAL): bool,
-            vol.Optional(CONF_USE_INTERNAL, default=DEFAULT_USE_INTERNAL): bool,
+            vol.Optional(
+                CONF_AVAIL_MINUTES, default=DEFAULT_AVAIL_MINUTES
+            ): vol.All(int, vol.Range(min=1, max=1440)),
+            vol.Required(CONF_SENSOR_SOURCE): vol.In(
+                [SENSOR_SOURCE_EXTERNAL, SENSOR_SOURCE_INTERNAL]
+            ),
         })
 
         if user_input is not None:
-            if user_input.get(CONF_USE_EXTERNAL) and user_input.get(CONF_USE_INTERNAL):
-                return self.async_show_form(
-                    step_id="user", data_schema=schema, errors={"base": "one_sensor"}
-                )
-
             sensor_id = user_input[CONF_SENSOR_ID].strip()
             prefix = user_input.get(CONF_PREFIX, DEFAULT_PREFIX)
             combined_id = f"{prefix}_{sensor_id}"
@@ -45,10 +57,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 },
                 options={
                     CONF_PREFIX: user_input.get(CONF_PREFIX, DEFAULT_PREFIX),
-                    CONF_DEVICE_TYPE: user_input.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE),
-                    CONF_AVAIL_MINUTES: user_input.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES),
-                    CONF_USE_EXTERNAL: user_input.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL),
-                    CONF_USE_INTERNAL: user_input.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL),
+                    CONF_DEVICE_TYPE: user_input.get(
+                        CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE
+                    ),
+                    CONF_AVAIL_MINUTES: user_input.get(
+                        CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES
+                    ),
+                    CONF_SENSOR_SOURCE: user_input[CONF_SENSOR_SOURCE],
                 },
             )
 
@@ -65,18 +80,23 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None) -> FlowResult:
         current = {**self.entry.data, **self.entry.options}
         schema = vol.Schema({
-            vol.Optional(CONF_PREFIX, default=current.get(CONF_PREFIX, DEFAULT_PREFIX)): str,
-            vol.Optional(CONF_DEVICE_TYPE, default=current.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE)): vol.In(DEVICE_CHOICES),
-            vol.Optional(CONF_AVAIL_MINUTES, default=current.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES)): vol.All(int, vol.Range(min=1, max=1440)),
-            vol.Optional(CONF_USE_EXTERNAL, default=current.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL)): bool,
-            vol.Optional(CONF_USE_INTERNAL, default=current.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL)): bool,
+            vol.Optional(
+                CONF_PREFIX, default=current.get(CONF_PREFIX, DEFAULT_PREFIX)
+            ): str,
+            vol.Optional(
+                CONF_DEVICE_TYPE,
+                default=current.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE),
+            ): vol.In(DEVICE_CHOICES),
+            vol.Optional(
+                CONF_AVAIL_MINUTES,
+                default=current.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES),
+            ): vol.All(int, vol.Range(min=1, max=1440)),
+            vol.Required(CONF_SENSOR_SOURCE): vol.In(
+                [SENSOR_SOURCE_EXTERNAL, SENSOR_SOURCE_INTERNAL]
+            ),
         })
 
         if user_input is not None:
-            if user_input.get(CONF_USE_EXTERNAL) and user_input.get(CONF_USE_INTERNAL):
-                return self.async_show_form(
-                    step_id="init", data_schema=schema, errors={"base": "one_sensor"}
-                )
             return self.async_create_entry(title="", data=user_input)
 
         return self.async_show_form(step_id="init", data_schema=schema)
@@ -97,5 +117,17 @@ async def async_migrate_entry(hass, config_entry: config_entries.ConfigEntry) ->
         hass.config_entries.async_update_entry(
             config_entry, data=data, unique_id=combined_id
         )
+
+    if version < 3:
+        options = {**config_entry.options}
+        if CONF_SENSOR_SOURCE not in options:
+            if options.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL):
+                options[CONF_SENSOR_SOURCE] = SENSOR_SOURCE_EXTERNAL
+            else:
+                options[CONF_SENSOR_SOURCE] = SENSOR_SOURCE_INTERNAL
+            options.pop(CONF_USE_EXTERNAL, None)
+            options.pop(CONF_USE_INTERNAL, None)
+        config_entry.version = 3
+        hass.config_entries.async_update_entry(config_entry, options=options)
 
     return True
