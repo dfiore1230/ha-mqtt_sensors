@@ -6,8 +6,8 @@ from custom_components.ha_mqtt_sensors.const import (
     CONF_NAME,
     CONF_PREFIX,
     DEFAULT_PREFIX,
-    CONF_USE_CONTACT,
-    CONF_USE_REED,
+    CONF_USE_EXTERNAL,
+    CONF_USE_INTERNAL,
 )
 from custom_components.ha_mqtt_sensors.binary_sensor import ContactEntity
 from custom_components.ha_mqtt_sensors.sensor import IntTopicSensor, LastSeenSensor, SignalStrengthSensor
@@ -112,7 +112,7 @@ def test_contact_topic_enabled_option(hass):
     sensor_id = "abc123"
     entry = ConfigEntry(
         data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
-        options={CONF_USE_CONTACT: True},
+        options={CONF_USE_EXTERNAL: True},
         entry_id="entry1",
     )
     hub = MqttHub(hass, entry)
@@ -139,7 +139,7 @@ def test_reed_topic_enabled_option(hass):
     sensor_id = "abc123"
     entry = ConfigEntry(
         data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
-        options={CONF_USE_REED: True},
+        options={CONF_USE_INTERNAL: True},
         entry_id="entry1",
     )
     hub = MqttHub(hass, entry)
