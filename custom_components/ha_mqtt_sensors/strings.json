@@ -1,6 +1,9 @@
 {
   "title": "HA MQTT Sensors",
   "config": {
+    "error": {
+      "one_sensor": "Select either external or internal sensor, not both"
+    },
     "step": {
       "user": {
         "title": "Add MQTT Sensor",
@@ -18,6 +21,9 @@
     }
   },
   "options": {
+    "error": {
+      "one_sensor": "Select either external or internal sensor, not both"
+    },
     "step": {
       "init": {
         "title": "HA MQTT Sensors Options",

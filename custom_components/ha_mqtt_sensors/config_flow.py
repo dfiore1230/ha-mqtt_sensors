@@ -15,7 +15,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 2
 
     async def async_step_user(self, user_input=None) -> FlowResult:
+        schema = vol.Schema({
+            vol.Required(CONF_SENSOR_ID, description={"suggested_value": "502442"}): str,
+            vol.Optional(CONF_NAME): str,
+            vol.Optional(CONF_PREFIX, default=DEFAULT_PREFIX): str,
+            vol.Optional(CONF_DEVICE_TYPE, default=DEFAULT_DEVICE_TYPE): vol.In(DEVICE_CHOICES),
+            vol.Optional(CONF_AVAIL_MINUTES, default=DEFAULT_AVAIL_MINUTES): vol.All(int, vol.Range(min=1, max=1440)),
+            vol.Optional(CONF_USE_EXTERNAL, default=DEFAULT_USE_EXTERNAL): bool,
+            vol.Optional(CONF_USE_INTERNAL, default=DEFAULT_USE_INTERNAL): bool,
+        })
+
         if user_input is not None:
+            if user_input.get(CONF_USE_EXTERNAL) and user_input.get(CONF_USE_INTERNAL):
+                return self.async_show_form(
+                    step_id="user", data_schema=schema, errors={"base": "one_sensor"}
+                )
+
             sensor_id = user_input[CONF_SENSOR_ID].strip()
             prefix = user_input.get(CONF_PREFIX, DEFAULT_PREFIX)
             combined_id = f"{prefix}_{sensor_id}"
@@ -32,20 +47,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_PREFIX: user_input.get(CONF_PREFIX, DEFAULT_PREFIX),
                     CONF_DEVICE_TYPE: user_input.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE),
                     CONF_AVAIL_MINUTES: user_input.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES),
-                      CONF_USE_EXTERNAL: user_input.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL),
-                      CONF_USE_INTERNAL: user_input.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL),
+                    CONF_USE_EXTERNAL: user_input.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL),
+                    CONF_USE_INTERNAL: user_input.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL),
                 },
             )
 
-        schema = vol.Schema({
-            vol.Required(CONF_SENSOR_ID, description={"suggested_value": "502442"}): str,
-            vol.Optional(CONF_NAME): str,
-            vol.Optional(CONF_PREFIX, default=DEFAULT_PREFIX): str,
-            vol.Optional(CONF_DEVICE_TYPE, default=DEFAULT_DEVICE_TYPE): vol.In(DEVICE_CHOICES),
-            vol.Optional(CONF_AVAIL_MINUTES, default=DEFAULT_AVAIL_MINUTES): vol.All(int, vol.Range(min=1, max=1440)),
-              vol.Optional(CONF_USE_EXTERNAL, default=DEFAULT_USE_EXTERNAL): bool,
-              vol.Optional(CONF_USE_INTERNAL, default=DEFAULT_USE_INTERNAL): bool,
-        })
         return self.async_show_form(step_id="user", data_schema=schema)
 
     @staticmethod
@@ -57,17 +63,22 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self.entry = entry
 
     async def async_step_init(self, user_input=None) -> FlowResult:
-        if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
-
         current = {**self.entry.data, **self.entry.options}
         schema = vol.Schema({
             vol.Optional(CONF_PREFIX, default=current.get(CONF_PREFIX, DEFAULT_PREFIX)): str,
             vol.Optional(CONF_DEVICE_TYPE, default=current.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE)): vol.In(DEVICE_CHOICES),
             vol.Optional(CONF_AVAIL_MINUTES, default=current.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES)): vol.All(int, vol.Range(min=1, max=1440)),
-              vol.Optional(CONF_USE_EXTERNAL, default=current.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL)): bool,
-              vol.Optional(CONF_USE_INTERNAL, default=current.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL)): bool,
+            vol.Optional(CONF_USE_EXTERNAL, default=current.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL)): bool,
+            vol.Optional(CONF_USE_INTERNAL, default=current.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL)): bool,
         })
+
+        if user_input is not None:
+            if user_input.get(CONF_USE_EXTERNAL) and user_input.get(CONF_USE_INTERNAL):
+                return self.async_show_form(
+                    step_id="init", data_schema=schema, errors={"base": "one_sensor"}
+                )
+            return self.async_create_entry(title="", data=user_input)
+
         return self.async_show_form(step_id="init", data_schema=schema)
 
 
