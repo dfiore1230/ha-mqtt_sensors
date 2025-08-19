@@ -14,8 +14,13 @@
           "topic_prefix": "Topic prefix",
           "device_type": "Sensor type (door/window/leak)",
           "availability_minutes": "Availability window (minutes)",
-          "use_external_sensor": "Use External Sensor",
-          "use_internal_sensor": "Use Internal Sensor"
+          "sensor_source": {
+            "name": "Sensor source",
+            "options": {
+              "external": "Use External Sensor",
+              "internal": "Use Internal Sensor"
+            }
+          }
         }
       }
     }
@@ -32,8 +37,13 @@
           "topic_prefix": "Topic prefix",
           "device_type": "Sensor type (door/window/leak)",
           "availability_minutes": "Availability window (minutes)",
-          "use_external_sensor": "Use External Sensor",
-          "use_internal_sensor": "Use Internal Sensor"
+          "sensor_source": {
+            "name": "Sensor source",
+            "options": {
+              "external": "Use External Sensor",
+              "internal": "Use Internal Sensor"
+            }
+          }
         }
       }
     }

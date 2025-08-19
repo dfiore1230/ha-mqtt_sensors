@@ -12,7 +12,13 @@ DEFAULT_DEVICE_TYPE = "window"
 CONF_AVAIL_MINUTES = "availability_minutes"
 DEFAULT_AVAIL_MINUTES = 90 
 
-# Optional triggers for contact sensors
+# Contact sensor source selection
+CONF_SENSOR_SOURCE = "sensor_source"  # "external" | "internal"
+SENSOR_SOURCE_EXTERNAL = "external"
+SENSOR_SOURCE_INTERNAL = "internal"
+DEFAULT_SENSOR_SOURCE = SENSOR_SOURCE_INTERNAL
+
+# Deprecated options kept for migration
 CONF_USE_EXTERNAL = "use_external_sensor"
 CONF_USE_INTERNAL = "use_internal_sensor"
 DEFAULT_USE_EXTERNAL = False

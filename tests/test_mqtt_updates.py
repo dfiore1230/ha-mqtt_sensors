@@ -6,11 +6,11 @@ from custom_components.ha_mqtt_sensors.const import (
     CONF_NAME,
     CONF_PREFIX,
     DEFAULT_PREFIX,
-    CONF_USE_EXTERNAL,
-    CONF_USE_INTERNAL,
+    CONF_SENSOR_SOURCE,
+    SENSOR_SOURCE_EXTERNAL,
+    SENSOR_SOURCE_INTERNAL,
 )
 from custom_components.ha_mqtt_sensors.binary_sensor import ContactEntity
-from custom_components.ha_mqtt_sensors.config_flow import ConfigFlow
 from custom_components.ha_mqtt_sensors.sensor import IntTopicSensor, LastSeenSensor, SignalStrengthSensor
 from custom_components.ha_mqtt_sensors.util import parse_datetime_utc
 from homeassistant.config_entries import ConfigEntry
@@ -113,7 +113,7 @@ def test_contact_topic_enabled_option(hass):
     sensor_id = "abc123"
     entry = ConfigEntry(
         data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
-        options={CONF_USE_EXTERNAL: True},
+        options={CONF_SENSOR_SOURCE: SENSOR_SOURCE_EXTERNAL},
         entry_id="entry1",
     )
     hub = MqttHub(hass, entry)
@@ -140,7 +140,7 @@ def test_reed_topic_enabled_option(hass):
     sensor_id = "abc123"
     entry = ConfigEntry(
         data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
-        options={CONF_USE_INTERNAL: True},
+        options={CONF_SENSOR_SOURCE: SENSOR_SOURCE_INTERNAL},
         entry_id="entry1",
     )
     hub = MqttHub(hass, entry)
@@ -302,20 +302,3 @@ def test_rssi_sensor_updates(hass):
     assert entity.native_value == -42
 
 
-def test_config_flow_rejects_both_sensors(hass):
-    flow = ConfigFlow()
-    flow.hass = hass
-    flow.async_show_form = lambda step_id, data_schema, errors=None: {
-        "type": "form",
-        "step_id": step_id,
-        "data_schema": data_schema,
-        "errors": errors,
-    }
-    user_input = {
-        CONF_SENSOR_ID: "abc123",
-        CONF_USE_EXTERNAL: True,
-        CONF_USE_INTERNAL: True,
-    }
-    result = asyncio.run(flow.async_step_user(user_input))
-    assert result["type"] == "form"
-    assert result["errors"]["base"] == "one_sensor"
