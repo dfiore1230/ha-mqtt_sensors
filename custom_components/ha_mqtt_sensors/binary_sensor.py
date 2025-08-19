@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import timedelta
+import logging
 from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.config_entries import ConfigEntry
@@ -127,6 +128,8 @@ class ContactEntity(_BaseBin):
                 event_val = True
             elif code in CONTACT_CLOSED_EVENTS:
                 event_val = False
+            elif code is not None:
+                logging.getLogger(__name__).debug("Unknown event code %s", code)
 
         state_text = (self._hub.states.get(TOPIC_STATE) or "").lower()
         state_val = None

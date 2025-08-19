@@ -10,7 +10,9 @@ DEFAULT_PREFIX = "sensors_345"
 CONF_DEVICE_TYPE = "device_type"           # "door" | "window" | "leak"
 DEFAULT_DEVICE_TYPE = "window"
 CONF_AVAIL_MINUTES = "availability_minutes"
-DEFAULT_AVAIL_MINUTES = 90 
+DEFAULT_AVAIL_MINUTES = 90
+CONF_AVAIL_TICK = "availability_tick_seconds"
+DEFAULT_AVAIL_TICK = 30
 
 # Contact sensor source selection
 CONF_SENSOR_SOURCE = "sensor_source"  # "external" | "internal"

@@ -1,0 +1,47 @@
+{
+  "title": "HA MQTT Sensors",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Agregar sensor MQTT",
+        "description": "Ingrese el ID del sensor y los ajustes",
+        "data": {
+          "sensor_id": "ID del sensor",
+          "name": "Nombre",
+          "topic_prefix": "Prefijo del tema",
+          "device_type": "Tipo de sensor (puerta/ventana/fuga)",
+          "availability_minutes": "Ventana de disponibilidad (minutos)",
+          "availability_tick_seconds": "Intervalo de actualización de disponibilidad (segundos)",
+          "sensor_source": {
+            "name": "Fuente del sensor",
+            "options": {
+              "external": "Usar sensor externo",
+              "internal": "Usar sensor interno"
+            }
+          }
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de HA MQTT Sensors",
+        "description": "Ajuste el prefijo del tema, el tipo de sensor y la ventana de disponibilidad",
+        "data": {
+          "topic_prefix": "Prefijo del tema",
+          "device_type": "Tipo de sensor (puerta/ventana/fuga)",
+          "availability_minutes": "Ventana de disponibilidad (minutos)",
+          "availability_tick_seconds": "Intervalo de actualización de disponibilidad (segundos)",
+          "sensor_source": {
+            "name": "Fuente del sensor",
+            "options": {
+              "external": "Usar sensor externo",
+              "internal": "Usar sensor interno"
+            }
+          }
+        }
+      }
+    }
+  }
+}
