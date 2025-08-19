@@ -43,3 +43,11 @@ def test_future_timestamp_returns_now(hass, stub_hub):
     sensor = _make_sensor(hass, hub)
     value = sensor.native_value
     assert value <= dt_util.as_utc(dt_util.utcnow())
+
+
+def test_zoneinfo_timezone_parsed(hass, stub_hub, monkeypatch):
+    hub = stub_hub
+    hub.states[TOPIC_TIME] = "2023-03-10 12:34:56"
+    monkeypatch.setattr(dt_util, "get_time_zone", lambda name: timezone.utc)
+    sensor = _make_sensor(hass, hub)
+    assert sensor.native_value == datetime(2023, 3, 10, 12, 34, 56, tzinfo=timezone.utc)

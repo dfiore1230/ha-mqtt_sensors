@@ -243,7 +243,7 @@ sys.modules["homeassistant.util"] = util_pkg
 dt = types.ModuleType("homeassistant.util.dt")
 
 def utcnow():
-    return datetime.utcnow()
+    return datetime.now(timezone.utc)
 
 def get_time_zone(name):
     class TZ:

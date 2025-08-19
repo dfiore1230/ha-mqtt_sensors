@@ -23,10 +23,14 @@ def parse_datetime_utc(hass, val: str):
         dt_local = datetime.strptime(val, "%Y-%m-%d %H:%M:%S")
     except (ValueError, TypeError):
         return None
-    tz = dt_util.get_time_zone(getattr(getattr(hass, "config", None), "time_zone", None) or "UTC")
+    tz_name = getattr(getattr(hass, "config", None), "time_zone", None) or "UTC"
+    tz = dt_util.get_time_zone(tz_name)
     if tz is not None:
         try:
-            dt_local = tz.localize(dt_local)
+            if hasattr(tz, "localize"):
+                dt_local = tz.localize(dt_local)
+            else:
+                dt_local = dt_local.replace(tzinfo=tz)
         except Exception:
             return None
     try:
