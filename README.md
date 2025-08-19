@@ -77,5 +77,16 @@ mosquitto_sub -h <BROKER_IP> -t 'sensors_345/+/+' -v
 mosquitto_sub -h <BROKER_IP> -t 'sensors_345/702442/#' -v
 ```
 
-## Options
-- Change topic prefix, device type, availability window and default contact open driver from the integration’s **Options**
+## Configuration Options
+
+The integration exposes several options via the Home Assistant UI:
+
+| Option | Description |
+|-------|-------------|
+| Topic Prefix | MQTT topic prefix |
+| Sensor Type | Device type for sensor (door/window/leak) |
+| Availability Window | Minutes until the device is considered offline |
+| Use External Sensor | Use external contact sensor for state |
+| Use Internal Sensor | Use internal reed sensor for state |
+
+Only one of **Use External Sensor** or **Use Internal Sensor** can be enabled at a time.
