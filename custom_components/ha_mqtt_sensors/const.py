@@ -10,13 +10,13 @@ DEFAULT_PREFIX = "sensors_345"
 CONF_DEVICE_TYPE = "device_type"           # "door" | "window" | "leak"
 DEFAULT_DEVICE_TYPE = "window"
 CONF_AVAIL_MINUTES = "availability_minutes"
-DEFAULT_AVAIL_MINUTES = 30 
+DEFAULT_AVAIL_MINUTES = 90 
 
 # Optional triggers for contact sensors
 CONF_USE_EXTERNAL = "use_external_sensor"
 CONF_USE_INTERNAL = "use_internal_sensor"
 DEFAULT_USE_EXTERNAL = False
-DEFAULT_USE_INTERNAL = False
+DEFAULT_USE_INTERNAL = True
 
 # Subtopics
 TOPIC_TIME = "time"
