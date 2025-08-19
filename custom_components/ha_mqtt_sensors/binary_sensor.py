@@ -15,7 +15,7 @@ from .const import (
     SUFFIX_AVAILABILITY, CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE, CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES,
     CONTACT_OPEN_STATES, CONTACT_CLOSED_STATES,
     CONTACT_OPEN_EVENTS, CONTACT_CLOSED_EVENTS,
-    CONF_USE_CONTACT, CONF_USE_REED, DEFAULT_USE_CONTACT, DEFAULT_USE_REED,
+    CONF_USE_EXTERNAL, CONF_USE_INTERNAL, DEFAULT_USE_EXTERNAL, DEFAULT_USE_INTERNAL,
 )
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
@@ -69,6 +69,7 @@ class ContactEntity(_BaseBin):
     def __init__(self, hub, entry, dev_info, name, device_class):
         super().__init__(hub, entry, dev_info, name, "contact")
         self._attr_device_class = device_class
+        self._event_seen = False
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
@@ -81,36 +82,47 @@ class ContactEntity(_BaseBin):
         @callback
         def _poke(_payload: str):
             self.async_write_ha_state()
-        for suffix in (TOPIC_CONTACT, TOPIC_REED, TOPIC_STATE, TOPIC_EVENT):
+        @callback
+        def _on_event(_payload: str):
+            self._event_seen = True
+            self.async_write_ha_state()
+        for suffix in (TOPIC_CONTACT, TOPIC_REED, TOPIC_STATE):
             self._removers.append(async_dispatcher_connect(self.hass, self._hub.signal_for(suffix), _poke))
+        self._removers.append(async_dispatcher_connect(self.hass, self._hub.signal_for(TOPIC_EVENT), _on_event))
         self.async_write_ha_state()
 
     @property
     def is_on(self):
-        if self._entry.options.get(CONF_USE_CONTACT, DEFAULT_USE_CONTACT):
+        if self._entry.options.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL):
             contact = self._hub.states.get(TOPIC_CONTACT)
             if contact is not None:
                 return str(contact) == "1"
-        if self._entry.options.get(CONF_USE_REED, DEFAULT_USE_REED):
+        if self._entry.options.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL):
             reed = self._hub.states.get(TOPIC_REED)
             if reed is not None:
                 return str(reed) == "1"
-        state_text = (self._hub.states.get(TOPIC_STATE) or "").lower()
-        if state_text in CONTACT_OPEN_STATES:
-            return True
-        if state_text in CONTACT_CLOSED_STATES:
-            return False
-        event = self._hub.states.get(TOPIC_EVENT)
-        if event is not None:
+        event_raw = self._hub.states.get(TOPIC_EVENT)
+        event_val = None
+        if event_raw is not None:
             try:
-                code = int(event)
+                code = int(event_raw, 0)
             except ValueError:
                 code = None
             if code in CONTACT_OPEN_EVENTS:
-                return True
-            if code in CONTACT_CLOSED_EVENTS:
-                return False
-        return None
+                event_val = True
+            elif code in CONTACT_CLOSED_EVENTS:
+                event_val = False
+
+        state_text = (self._hub.states.get(TOPIC_STATE) or "").lower()
+        state_val = None
+        if state_text in CONTACT_OPEN_STATES:
+            state_val = True
+        elif state_text in CONTACT_CLOSED_STATES:
+            state_val = False
+
+        if self._event_seen:
+            return event_val if event_val is not None else state_val
+        return state_val if state_val is not None else event_val
 
 class TamperEntity(_BaseBin):
     _attr_device_class = BinarySensorDeviceClass.TAMPER

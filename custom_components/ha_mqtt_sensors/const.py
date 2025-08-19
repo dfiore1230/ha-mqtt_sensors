@@ -13,10 +13,10 @@ CONF_AVAIL_MINUTES = "availability_minutes"
 DEFAULT_AVAIL_MINUTES = 30 
 
 # Optional triggers for contact sensors
-CONF_USE_CONTACT = "use_contact_open"
-CONF_USE_REED = "use_reed_open"
-DEFAULT_USE_CONTACT = False
-DEFAULT_USE_REED = False
+CONF_USE_EXTERNAL = "use_external_sensor"
+CONF_USE_INTERNAL = "use_internal_sensor"
+DEFAULT_USE_EXTERNAL = False
+DEFAULT_USE_INTERNAL = False
 
 # Subtopics
 TOPIC_TIME = "time"

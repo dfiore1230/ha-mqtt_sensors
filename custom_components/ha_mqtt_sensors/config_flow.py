@@ -6,7 +6,7 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import (
     DOMAIN, CONF_SENSOR_ID, CONF_NAME, CONF_PREFIX, DEFAULT_PREFIX,
     CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE, CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES,
-    CONF_USE_CONTACT, CONF_USE_REED, DEFAULT_USE_CONTACT, DEFAULT_USE_REED,
+    CONF_USE_EXTERNAL, CONF_USE_INTERNAL, DEFAULT_USE_EXTERNAL, DEFAULT_USE_INTERNAL,
 )
 
 DEVICE_CHOICES = ["door", "window", "leak"]
@@ -32,8 +32,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_PREFIX: user_input.get(CONF_PREFIX, DEFAULT_PREFIX),
                     CONF_DEVICE_TYPE: user_input.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE),
                     CONF_AVAIL_MINUTES: user_input.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES),
-                    CONF_USE_CONTACT: user_input.get(CONF_USE_CONTACT, DEFAULT_USE_CONTACT),
-                    CONF_USE_REED: user_input.get(CONF_USE_REED, DEFAULT_USE_REED),
+                      CONF_USE_EXTERNAL: user_input.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL),
+                      CONF_USE_INTERNAL: user_input.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL),
                 },
             )
 
@@ -43,8 +43,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_PREFIX, default=DEFAULT_PREFIX): str,
             vol.Optional(CONF_DEVICE_TYPE, default=DEFAULT_DEVICE_TYPE): vol.In(DEVICE_CHOICES),
             vol.Optional(CONF_AVAIL_MINUTES, default=DEFAULT_AVAIL_MINUTES): vol.All(int, vol.Range(min=1, max=1440)),
-            vol.Optional(CONF_USE_CONTACT, default=DEFAULT_USE_CONTACT): bool,
-            vol.Optional(CONF_USE_REED, default=DEFAULT_USE_REED): bool,
+              vol.Optional(CONF_USE_EXTERNAL, default=DEFAULT_USE_EXTERNAL): bool,
+              vol.Optional(CONF_USE_INTERNAL, default=DEFAULT_USE_INTERNAL): bool,
         })
         return self.async_show_form(step_id="user", data_schema=schema)
 
@@ -65,8 +65,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             vol.Optional(CONF_PREFIX, default=current.get(CONF_PREFIX, DEFAULT_PREFIX)): str,
             vol.Optional(CONF_DEVICE_TYPE, default=current.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE)): vol.In(DEVICE_CHOICES),
             vol.Optional(CONF_AVAIL_MINUTES, default=current.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES)): vol.All(int, vol.Range(min=1, max=1440)),
-            vol.Optional(CONF_USE_CONTACT, default=current.get(CONF_USE_CONTACT, DEFAULT_USE_CONTACT)): bool,
-            vol.Optional(CONF_USE_REED, default=current.get(CONF_USE_REED, DEFAULT_USE_REED)): bool,
+              vol.Optional(CONF_USE_EXTERNAL, default=current.get(CONF_USE_EXTERNAL, DEFAULT_USE_EXTERNAL)): bool,
+              vol.Optional(CONF_USE_INTERNAL, default=current.get(CONF_USE_INTERNAL, DEFAULT_USE_INTERNAL)): bool,
         })
         return self.async_show_form(step_id="init", data_schema=schema)
 
