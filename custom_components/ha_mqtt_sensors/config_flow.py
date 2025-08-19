@@ -13,6 +13,8 @@ from .const import (
     DEFAULT_DEVICE_TYPE,
     CONF_AVAIL_MINUTES,
     DEFAULT_AVAIL_MINUTES,
+    CONF_AVAIL_TICK,
+    DEFAULT_AVAIL_TICK,
     CONF_SENSOR_SOURCE,
     DEFAULT_SENSOR_SOURCE,
     SENSOR_SOURCE_EXTERNAL,
@@ -37,6 +39,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(
                 CONF_AVAIL_MINUTES, default=DEFAULT_AVAIL_MINUTES
             ): vol.All(int, vol.Range(min=1, max=1440)),
+            vol.Optional(
+                CONF_AVAIL_TICK, default=DEFAULT_AVAIL_TICK
+            ): vol.All(int, vol.Range(min=5, max=3600)),
             vol.Required(CONF_SENSOR_SOURCE): vol.In(
                 [SENSOR_SOURCE_EXTERNAL, SENSOR_SOURCE_INTERNAL]
             ),
@@ -62,6 +67,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                     CONF_AVAIL_MINUTES: user_input.get(
                         CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES
+                    ),
+                    CONF_AVAIL_TICK: user_input.get(
+                        CONF_AVAIL_TICK, DEFAULT_AVAIL_TICK
                     ),
                     CONF_SENSOR_SOURCE: user_input[CONF_SENSOR_SOURCE],
                 },
@@ -91,6 +99,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 CONF_AVAIL_MINUTES,
                 default=current.get(CONF_AVAIL_MINUTES, DEFAULT_AVAIL_MINUTES),
             ): vol.All(int, vol.Range(min=1, max=1440)),
+            vol.Optional(
+                CONF_AVAIL_TICK,
+                default=current.get(CONF_AVAIL_TICK, DEFAULT_AVAIL_TICK),
+            ): vol.All(int, vol.Range(min=5, max=3600)),
             vol.Required(CONF_SENSOR_SOURCE): vol.In(
                 [SENSOR_SOURCE_EXTERNAL, SENSOR_SOURCE_INTERNAL]
             ),

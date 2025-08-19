@@ -9,8 +9,15 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
 
 from .const import (
-    DOMAIN, PLATFORMS, CONF_SENSOR_ID, CONF_PREFIX, DEFAULT_PREFIX, SIG_UPDATE,
-    SUFFIX_AVAILABILITY
+    DOMAIN,
+    PLATFORMS,
+    CONF_SENSOR_ID,
+    CONF_PREFIX,
+    DEFAULT_PREFIX,
+    SIG_UPDATE,
+    SUFFIX_AVAILABILITY,
+    CONF_AVAIL_TICK,
+    DEFAULT_AVAIL_TICK,
 )
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -50,6 +57,7 @@ class MqttHub:
         self._unsub_mqtt = None
         self._unsub_timer = None
         self._last_seen_utc = None  # datetime
+        self._tick_seconds = entry.options.get(CONF_AVAIL_TICK, DEFAULT_AVAIL_TICK)
 
     async def async_setup(self) -> None:
         await mqtt.async_wait_for_mqtt_client(self.hass)
@@ -83,7 +91,7 @@ class MqttHub:
 
         self._unsub_mqtt = await mqtt.async_subscribe(self.hass, topic, _cb, qos=0, encoding=None)
         self._unsub_timer = async_track_time_interval(
-            self.hass, self._availability_tick, timedelta(seconds=30)
+            self.hass, self._availability_tick, timedelta(seconds=self._tick_seconds)
         )
 
     async def async_unload(self) -> None:

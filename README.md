@@ -5,7 +5,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 ## Features
 - Device type selection per sensor: **door**, **window**, **leak**
 - Binary sensors: Contact, Tamper, Battery Low, Alarm, Connectivity
-- Sensors: Last Seen (timestamp), Event, Channel, Heartbeat, State (text), MIC, ID
+- Sensors: Last Seen (timestamp), Event, Channel, Heartbeat, State (text), MIC, ID, Signal Strength
 - Availability/Connectivity turns **on** when a message was seen within N minutes (default 30)
 
 ## MQTT Setup
@@ -61,6 +61,7 @@ Home Assistant custom integration that creates a device with multiple entities f
 <prefix>/<id>/battery_ok    e.g. 1
 <prefix>/<id>/heartbeat     e.g. 0
 <prefix>/<id>/mic           e.g. CRC
+<prefix>/<id>/rssi          e.g. -42
 ```
 
 ## Entity mapping
@@ -86,7 +87,6 @@ The integration exposes several options via the Home Assistant UI:
 | Topic Prefix | MQTT topic prefix |
 | Sensor Type | Device type for sensor (door/window/leak) |
 | Availability Window | Minutes until the device is considered offline |
-| Use External Sensor | Use external contact sensor for state |
-| Use Internal Sensor | Use internal reed sensor for state |
+| Availability Tick Interval | Seconds between availability updates |
+| Sensor Source | Source for contact state (external/internal) |
 
-Only one of **Use External Sensor** or **Use Internal Sensor** can be enabled at a time.
