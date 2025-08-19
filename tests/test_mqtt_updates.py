@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from custom_components.ha_mqtt_sensors import MqttHub
 from custom_components.ha_mqtt_sensors.const import (
@@ -300,5 +301,33 @@ def test_rssi_sensor_updates(hass):
 
     callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/rssi", "-42"))
     assert entity.native_value == -42
+
+
+def test_unknown_event_logs_debug(hass, caplog):
+    sensor_id = "abc123"
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
+        options={},
+        entry_id="entry1",
+    )
+    hub = MqttHub(hass, entry)
+    asyncio.run(hub.async_setup())
+
+    entity = ContactEntity(hub, entry, DeviceInfo(), "Test", BinarySensorDeviceClass.DOOR)
+    entity.hass = hass
+    asyncio.run(entity.async_added_to_hass())
+
+    topic = f"{DEFAULT_PREFIX}/{sensor_id}/event"
+    callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
+
+    class Msg:
+        def __init__(self, topic, payload):
+            self.topic = topic
+            self.payload = payload
+
+    with caplog.at_level(logging.DEBUG, logger="custom_components.ha_mqtt_sensors.binary_sensor"):
+        callback(Msg(topic, "999"))
+        _ = entity.is_on
+        assert "Unknown event code 999" in caplog.text
 
 

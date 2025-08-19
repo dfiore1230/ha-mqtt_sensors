@@ -1,9 +1,6 @@
 {
   "title": "HA MQTT Sensors",
   "config": {
-    "error": {
-      "one_sensor": "Select either external or internal sensor, not both"
-    },
     "step": {
       "user": {
         "title": "Add MQTT Sensor",
@@ -14,6 +11,7 @@
           "topic_prefix": "Topic prefix",
           "device_type": "Sensor type (door/window/leak)",
           "availability_minutes": "Availability window (minutes)",
+          "availability_tick_seconds": "Availability tick interval (seconds)",
           "sensor_source": {
             "name": "Sensor source",
             "options": {
@@ -26,9 +24,6 @@
     }
   },
   "options": {
-    "error": {
-      "one_sensor": "Select either external or internal sensor, not both"
-    },
     "step": {
       "init": {
         "title": "HA MQTT Sensors Options",
@@ -37,6 +32,7 @@
           "topic_prefix": "Topic prefix",
           "device_type": "Sensor type (door/window/leak)",
           "availability_minutes": "Availability window (minutes)",
+          "availability_tick_seconds": "Availability tick interval (seconds)",
           "sensor_source": {
             "name": "Sensor source",
             "options": {
