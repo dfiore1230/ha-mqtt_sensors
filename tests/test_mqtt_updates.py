@@ -10,7 +10,7 @@ from custom_components.ha_mqtt_sensors.const import (
     CONF_USE_REED,
 )
 from custom_components.ha_mqtt_sensors.binary_sensor import ContactEntity
-from custom_components.ha_mqtt_sensors.sensor import IntTopicSensor, LastSeenSensor
+from custom_components.ha_mqtt_sensors.sensor import IntTopicSensor, LastSeenSensor, SignalStrengthSensor
 from custom_components.ha_mqtt_sensors.util import parse_datetime_utc
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
@@ -272,3 +272,30 @@ def test_last_seen_sensor_restores_state_and_hub(hass):
     parsed = parse_datetime_utc(hass, ts)
     assert entity.native_value == parsed
     assert hub.last_seen_utc == parsed
+
+
+def test_rssi_sensor_updates(hass):
+    sensor_id = "abc123"
+    entry = ConfigEntry(
+        data={CONF_SENSOR_ID: sensor_id, CONF_NAME: "Test", CONF_PREFIX: DEFAULT_PREFIX},
+        options={},
+        entry_id="entry1",
+    )
+    hub = MqttHub(hass, entry)
+    asyncio.run(hub.async_setup())
+
+    entity = SignalStrengthSensor(hub, entry, DeviceInfo(), "Test RSSI", "rssi")
+    entity.hass = hass
+    asyncio.run(entity.async_added_to_hass())
+
+    assert entity.native_value is None
+
+    callback = subscriptions[f"{DEFAULT_PREFIX}/{sensor_id}/+"]
+
+    class Msg:
+        def __init__(self, topic, payload):
+            self.topic = topic
+            self.payload = payload
+
+    callback(Msg(f"{DEFAULT_PREFIX}/{sensor_id}/rssi", "-42"))
+    assert entity.native_value == -42
