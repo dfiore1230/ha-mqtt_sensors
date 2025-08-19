@@ -71,10 +71,12 @@ def test_contact_entity_event_updates(hass):
             self.topic = topic
             self.payload = payload
 
-    callback(Msg(topic, "160"))
-    assert entity.is_on is True
-    callback(Msg(topic, "128"))
-    assert entity.is_on is False
+    for code in (160, 168, 192, 200, 232):
+        callback(Msg(topic, str(code)))
+        assert entity.is_on is True
+    for code in (128, 40, 64, 104):
+        callback(Msg(topic, str(code)))
+        assert entity.is_on is False
 
 
 def test_contact_ignores_topics_by_default(hass):

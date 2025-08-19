@@ -40,5 +40,8 @@ CONTACT_OPEN_STATES = {"open", "opened", "wet", "leak"}
 CONTACT_CLOSED_STATES = {"close", "closed", "dry"}
 
 # Event codes for contact sensors
-CONTACT_OPEN_EVENTS = {160}
-CONTACT_CLOSED_EVENTS = {128}
+# Different firmware/conditions may report a variety of values while still
+# indicating a simple open/closed state.  Include the known variants so the
+# contact entity can normalize them.
+CONTACT_OPEN_EVENTS = {160, 168, 192, 200, 232}
+CONTACT_CLOSED_EVENTS = {128, 40, 64, 104}
