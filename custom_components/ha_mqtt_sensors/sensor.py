@@ -10,7 +10,7 @@ from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN, CONF_NAME,
     TOPIC_TIME, TOPIC_EVENT, TOPIC_CHANNEL, TOPIC_HEARTBEAT,
-    TOPIC_STATE, TOPIC_MIC, TOPIC_ID,
+    TOPIC_STATE, TOPIC_MIC, TOPIC_ID, TOPIC_RSSI,
 )
 from .util import parse_datetime_utc
 
@@ -30,6 +30,7 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
         IntTopicSensor(hub, entry, dev_info, f"{base_name} Event", TOPIC_EVENT),
         IntTopicSensor(hub, entry, dev_info, f"{base_name} Channel", TOPIC_CHANNEL),
         IntTopicSensor(hub, entry, dev_info, f"{base_name} Heartbeat", TOPIC_HEARTBEAT),
+        SignalStrengthSensor(hub, entry, dev_info, f"{base_name} RSSI", TOPIC_RSSI),
         TextTopicSensor(hub, entry, dev_info, f"{base_name} State Text", TOPIC_STATE),
         TextTopicSensor(hub, entry, dev_info, f"{base_name} MIC", TOPIC_MIC),
         TextTopicSensor(hub, entry, dev_info, f"{base_name} ID", TOPIC_ID),
@@ -108,6 +109,10 @@ class IntTopicSensor(_BaseSensor):
             return int(v)
         except ValueError:
             return None
+
+class SignalStrengthSensor(IntTopicSensor):
+    _attr_device_class = SensorDeviceClass.SIGNAL_STRENGTH
+    _attr_native_unit_of_measurement = "dB"
 
 class TextTopicSensor(_BaseSensor):
     def __init__(self, hub, entry, dev_info, name, topic_suffix: str):

@@ -151,6 +151,7 @@ sensor_mod = types.ModuleType("homeassistant.components.sensor")
 
 class SensorDeviceClass:
     TIMESTAMP = "timestamp"
+    SIGNAL_STRENGTH = "signal_strength"
 
 class SensorEntity:
     def __init__(self):

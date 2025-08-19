@@ -31,6 +31,7 @@ TOPIC_TAMPER = "tamper"
 TOPIC_BATTOK = "battery_ok"
 TOPIC_HEARTBEAT = "heartbeat"
 TOPIC_MIC = "mic"
+TOPIC_RSSI = "rssi"
 
 SIG_UPDATE = "ha_mqtt_sensors_update"
 SUFFIX_AVAILABILITY = "availability"
