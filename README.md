@@ -85,7 +85,7 @@ The integration exposes several options via the Home Assistant UI:
 | Option | Description |
 |-------|-------------|
 | Topic Prefix | MQTT topic prefix |
-| Sensor Type | Device type for sensor (door/window/leak) |
+| Sensor Type | Device type for sensor (door/window/leak/vibration) |
 | Availability Window | Minutes until the device is considered offline |
 | Availability Tick Interval | Seconds between availability updates |
 | Sensor Source | Source for contact state (external/internal) |

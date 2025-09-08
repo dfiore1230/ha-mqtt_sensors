@@ -25,7 +25,7 @@ from .const import (
     DEFAULT_USE_INTERNAL,
 )
 
-DEVICE_CHOICES = ["door", "window", "leak"]
+DEVICE_CHOICES = ["door", "window", "leak", "vibration"]
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 3
