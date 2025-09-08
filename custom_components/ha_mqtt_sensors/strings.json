@@ -9,7 +9,7 @@
           "sensor_id": "Sensor ID",
           "name": "Name",
           "topic_prefix": "Topic prefix",
-          "device_type": "Sensor type (door/window/leak)",
+          "device_type": "Sensor type (door/window/leak/vibration)",
           "availability_minutes": "Availability window (minutes)",
           "availability_tick_seconds": "Availability tick interval (seconds)",
           "sensor_source": {
@@ -30,7 +30,7 @@
         "description": "Adjust topic prefix, sensor type, and availability window",
         "data": {
           "topic_prefix": "Topic prefix",
-          "device_type": "Sensor type (door/window/leak)",
+          "device_type": "Sensor type (door/window/leak/vibration)",
           "availability_minutes": "Availability window (minutes)",
           "availability_tick_seconds": "Availability tick interval (seconds)",
           "sensor_source": {

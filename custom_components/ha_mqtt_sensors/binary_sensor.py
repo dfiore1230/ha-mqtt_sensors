@@ -51,6 +51,9 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     elif dtype == "leak":
         main_name = f"{base_name} Leak"
         main_class = BinarySensorDeviceClass.MOISTURE
+    elif dtype == "vibration":
+        main_name = f"{base_name} Vibration"
+        main_class = BinarySensorDeviceClass.VIBRATION
     else:
         main_name = f"{base_name} Window"
         main_class = BinarySensorDeviceClass.WINDOW

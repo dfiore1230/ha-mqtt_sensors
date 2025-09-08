@@ -124,6 +124,7 @@ class BinarySensorDeviceClass:
     DOOR = "door"
     MOISTURE = "moisture"
     WINDOW = "window"
+    VIBRATION = "vibration"
     TAMPER = "tamper"
     BATTERY = "battery"
     PROBLEM = "problem"

@@ -13,6 +13,6 @@ def test_options_flow_changes_device_type():
     assert result["type"] == "form"
     assert CONF_DEVICE_TYPE in result["data_schema"].schema
 
-    result2 = asyncio.run(handler.async_step_init({CONF_DEVICE_TYPE: "door"}))
+    result2 = asyncio.run(handler.async_step_init({CONF_DEVICE_TYPE: "vibration"}))
     assert result2["type"] == "create_entry"
-    assert result2["data"][CONF_DEVICE_TYPE] == "door"
+    assert result2["data"][CONF_DEVICE_TYPE] == "vibration"
